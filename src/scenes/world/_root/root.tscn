@@ -1,0 +1,273 @@
+[gd_scene load_steps=15 format=3 uid="uid://dwe6qocvfcgsy"]
+
+[ext_resource type="Script" path="res://scenes/entities/custom_nodes/BorderLine2D.gd" id="1_ro0cb"]
+[ext_resource type="Script" path="res://scenes/world/_root/root.gd" id="1_uyrlx"]
+[ext_resource type="PackedScene" uid="uid://c0so4rwftmw2t" path="res://scenes/entities/player/player.tscn" id="2_6ejvq"]
+[ext_resource type="Shader" path="res://global/resources/shaders/crt.gdshader" id="3_lsusj"]
+[ext_resource type="Shader" path="res://global/resources/shaders/grid.gdshader" id="4_6cfjd"]
+[ext_resource type="Shader" path="res://global/resources/shaders/crt_game_realm.gdshader" id="6_keeaj"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xa2ol"]
+shader = ExtResource("4_6cfjd")
+shader_parameter/resolution = Vector2(1200, 800)
+shader_parameter/line_color = Color(0.188235, 0.168627, 0.388235, 1)
+shader_parameter/zoom = 35.0
+shader_parameter/thickness = 1.0
+shader_parameter/brightness = 0.6
+
+[sub_resource type="Gradient" id="Gradient_mual3"]
+interpolation_mode = 2
+interpolation_color_space = 2
+offsets = PackedFloat32Array(0, 0.506667, 0.993333)
+colors = PackedColorArray(0.211765, 0.819608, 0.862745, 1, 0.356863, 0.52549, 0.898039, 1, 0.211765, 0.819608, 0.862745, 1)
+
+[sub_resource type="Shader" id="Shader_rikof"]
+code = "/*
+	ガウシアンフィルタとSobel シェーダー2 by あるる（きのもと 結衣）
+	Sobel with Gaussian filter Shader2 by @arlez80
+
+	MIT License
+*/
+
+shader_type canvas_item;
+render_mode unshaded, blend_disabled;
+
+uniform float alpha : hint_range( 0.0, 1.0 ) = 1.0;
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, repeat_disable, filter_nearest;
+
+vec3 gaussian5x5( sampler2D tex, vec2 uv, vec2 pix_size )
+{
+	vec3 p = vec3( 0.0, 0.0, 0.0 );
+	float coef[25] = { 0.00390625, 0.015625, 0.0234375, 0.015625, 0.00390625, 0.015625, 0.0625, 0.09375, 0.0625, 0.015625, 0.0234375, 0.09375, 0.140625, 0.09375, 0.0234375, 0.015625, 0.0625, 0.09375, 0.0625, 0.015625, 0.00390625, 0.015625, 0.0234375, 0.015625, 0.00390625 };
+
+	for( int y=-2; y<=2; y++ ) {
+		for( int x=-2; x<=2; x ++ ) {
+			p += ( texture( tex, uv + vec2( float( x ), float( y ) ) * pix_size ).rgb ) * coef[(y+2)*5 + (x+2)];
+		}
+	}
+
+	return p;
+}
+
+void fragment( )
+{
+	vec3 pix[9];	// 3 x 3
+
+	// ガウシアンフィルタ
+	for( int y=0; y<3; y ++ ) {
+		for( int x=0; x<3; x ++ ) {
+			pix[y*3+x] = gaussian5x5( SCREEN_TEXTURE, SCREEN_UV + vec2( float( x-1 ), float( y-1 ) ) * SCREEN_PIXEL_SIZE, SCREEN_PIXEL_SIZE );
+		}
+	}
+
+	// Sobelフィルタ
+	vec3 sobel_src_x = (
+		pix[0] * -1.0
+	+	pix[3] * -2.0
+	+	pix[6] * -1.0
+	+	pix[2] * 1.0
+	+	pix[5] * 2.0
+	+	pix[8] * 1.0
+	);
+	vec3 sobel_src_y = (
+		pix[0] * -1.0
+	+	pix[1] * -2.0
+	+	pix[2] * -1.0
+	+	pix[6] * 1.0
+	+	pix[7] * 2.0
+	+	pix[8] * 1.0
+	);
+	vec3 sobel = sqrt( sobel_src_x * sobel_src_x + sobel_src_y * sobel_src_y );
+
+	COLOR = vec4( sobel, alpha );
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wwli5"]
+shader = SubResource("Shader_rikof")
+shader_parameter/alpha = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qplhl"]
+shader = ExtResource("3_lsusj")
+
+[sub_resource type="Shader" id="Shader_idq1o"]
+code = "shader_type canvas_item;
+
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_nearest;
+
+uniform float BLOOM_THRESHOLD = 0.7;
+uniform float BLOOM_INTENSITY = 3.0;
+
+uniform int BLUR_ITERATIONS = 3;
+uniform float BLUR_SIZE = 0.03;
+uniform int BLUR_SUBDIVISIONS = 32;
+
+vec3 getHDR(vec3 tex) {
+    return max((tex - BLOOM_THRESHOLD) * BLOOM_INTENSITY, vec3(0.0));
+}
+
+vec3 gaussian(sampler2D sampler, vec2 uv) {
+    vec3 sum = vec3(0.0);
+
+    for (int i = 1; i <= BLUR_ITERATIONS; i++) {
+        float angle = 360.0 / float(BLUR_SUBDIVISIONS);
+
+        for (int j = 0; j < BLUR_SUBDIVISIONS; j++) {
+            float dist = BLUR_SIZE * float(i + 1) / float(BLUR_ITERATIONS);
+            float s = sin(angle * float(j));
+            float c = cos(angle * float(j));
+
+            sum += getHDR(texture(sampler, uv + vec2(c, s) * dist).xyz);
+        }
+    }
+
+    sum /= float(BLUR_ITERATIONS * BLUR_SUBDIVISIONS);
+    return sum * BLOOM_INTENSITY;
+}
+
+vec3 blend(vec3 a, vec3 b) {
+    return 1.0 - (1.0 - a) * (1.0 - b);
+}
+
+void fragment() {
+    vec4 tx = texture(screen_texture, SCREEN_UV);
+    vec3 result = gaussian(screen_texture, SCREEN_UV);
+
+	vec4 bg = vec4(result, 1);
+
+    float gray = dot(bg.rgb, vec3(0.299, 0.587, 0.114));
+    bg = vec4(bg.rgb, gray);
+
+	vec4 final = bg;
+
+	final = bg + tx;
+
+    COLOR = final;
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cm8on"]
+shader = SubResource("Shader_idq1o")
+shader_parameter/BLOOM_THRESHOLD = 0.75
+shader_parameter/BLOOM_INTENSITY = 2.0
+shader_parameter/BLUR_ITERATIONS = 5
+shader_parameter/BLUR_SIZE = 0.005
+shader_parameter/BLUR_SUBDIVISIONS = 32
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0mi4s"]
+shader = ExtResource("6_keeaj")
+shader_parameter/scanline_count = 350.0
+shader_parameter/offset_r = 0.0
+shader_parameter/offset_b = 0.0
+
+[node name="Root" type="Node"]
+script = ExtResource("1_uyrlx")
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="shader_grid" type="ColorRect" parent="ParallaxBackground"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_xa2ol")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="BorderLine2D" type="Line2D" parent="."]
+points = PackedVector2Array(305, 141, 471, 264, 589, 187, 537, 36, 297, 44)
+closed = true
+width = 8.0
+gradient = SubResource("Gradient_mual3")
+joint_mode = 2
+antialiased = true
+script = ExtResource("1_ro0cb")
+
+[node name="BorderLine2D2" type="Line2D" parent="."]
+points = PackedVector2Array(55, 322, 376, 348, 290, 254, 74, 202, 12, 221)
+closed = true
+width = 8.0
+gradient = SubResource("Gradient_mual3")
+joint_mode = 2
+antialiased = true
+script = ExtResource("1_ro0cb")
+
+[node name="Player" parent="." instance=ExtResource("2_6ejvq")]
+position = Vector2(103, 147)
+
+[node name="stripes_shader_group" type="Node" parent="."]
+
+[node name="red_stripes" type="CanvasGroup" parent="stripes_shader_group"]
+unique_name_in_owner = true
+
+[node name="green_stripes" type="CanvasGroup" parent="stripes_shader_group"]
+unique_name_in_owner = true
+
+[node name="blue_stripes" type="CanvasGroup" parent="stripes_shader_group"]
+unique_name_in_owner = true
+
+[node name="shaders" type="CanvasLayer" parent="."]
+
+[node name="dev_realm_shaders" type="Control" parent="shaders"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="shader_sobel" type="ColorRect" parent="shaders/dev_realm_shaders"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_wwli5")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="shaders/dev_realm_shaders"]
+copy_mode = 2
+
+[node name="shader_crt" type="ColorRect" parent="shaders/dev_realm_shaders"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_qplhl")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="game_realm_shaders" type="Control" parent="shaders"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="shader_glow" type="ColorRect" parent="shaders/game_realm_shaders"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_cm8on")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="shaders/game_realm_shaders"]
+copy_mode = 2
+
+[node name="shader_crt_game_realm" type="ColorRect" parent="shaders/game_realm_shaders"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_0mi4s")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

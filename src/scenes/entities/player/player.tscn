@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://c0so4rwftmw2t"]
+
+[ext_resource type="Script" path="res://scenes/entities/player/player.gd" id="1_31bk7"]
+[ext_resource type="Texture2D" uid="uid://b3uvy02xa5d04" path="res://scenes/entities/player/player.png" id="2_20bts"]
+[ext_resource type="Script" path="res://scenes/entities/custom_nodes/VisibleCollisionPolygon2D.gd" id="2_kyvqy"]
+
+[sub_resource type="Curve" id="Curve_vu3h2"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.253012, 1), 1.4, 0.0, 0, 0]
+point_count = 2
+
+[node name="Player" type="CharacterBody2D"]
+motion_mode = 1
+platform_floor_layers = 1
+script = ExtResource("1_31bk7")
+acceleration_curve = SubResource("Curve_vu3h2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+texture = ExtResource("2_20bts")
+
+[node name="polygon" type="Polygon2D" parent="."]
+color = Color(0.862745, 0.890196, 0.356863, 1)
+polygon = PackedVector2Array(0, 16, -8, 16, -8, 24, -16, 24, -24, 16, -8, 0, 0, -24, 8, 0, 24, 16, 16, 24, 8, 24, 8, 16)
+
+[node name="collider" type="CollisionPolygon2D" parent="."]
+visible = false
+position = Vector2(0, 24)
+polygon = PackedVector2Array(0, -46, -7, -24, -22, -8, 22, -8, 7, -24)
+script = ExtResource("2_kyvqy")
