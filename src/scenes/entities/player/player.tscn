@@ -26,5 +26,7 @@ polygon = PackedVector2Array(0, 16, -8, 16, -8, 24, -16, 24, -24, 16, -8, 0, 0, 
 [node name="collider" type="CollisionPolygon2D" parent="."]
 visible = false
 position = Vector2(0, 24)
-polygon = PackedVector2Array(0, -46, -7, -24, -22, -8, 22, -8, 7, -24)
+polygon = PackedVector2Array(0, -45, -6, -24, -21, -8, 20, -8, 6, -24)
 script = ExtResource("2_kyvqy")
+
+[node name="sfx" type="Node" parent="."]

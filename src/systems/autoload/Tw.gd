@@ -95,7 +95,7 @@ class TwContext:
 static func _set_shader_param(new_value: Variant, param_name: String, shader: ShaderMaterial) -> void:
 	shader.set_shader_parameter(param_name, new_value)
 
-func _create_context(easing: Tween.EaseType = Tween.EASE_IN_OUT, trans: Tween.TransitionType = Tween.TRANS_LINEAR, parallel: bool = true) -> TwContext:
+func create_context(easing: Tween.EaseType = Tween.EASE_IN_OUT, trans: Tween.TransitionType = Tween.TRANS_LINEAR, parallel: bool = true) -> TwContext:
 	var context: TwContext = TwContext.new()
 	var _tween: Tween = create_tween()
 	_tween.set_ease(easing)
@@ -109,12 +109,12 @@ func _create_context(easing: Tween.EaseType = Tween.EASE_IN_OUT, trans: Tween.Tr
 #region Functions
 func tween(target: Variant, params: Dictionary, duration: float,
 		easing: Tween.EaseType = Tween.EASE_IN_OUT, trans: Tween.TransitionType = Tween.TRANS_LINEAR, parallel: bool = true) -> TwContext:
-	var ctx: TwContext = _create_context(easing, trans, parallel)
+	var ctx: TwContext = create_context(easing, trans, parallel)
 	return ctx.tween(target, params, duration)
 
 func tween_shader(shader: ShaderMaterial, params: Dictionary, duration: float,
 		easing: Tween.EaseType = Tween.EASE_IN_OUT, trans: Tween.TransitionType = Tween.TRANS_LINEAR, parallel: bool = true) -> TwContext:
-	return _create_context(easing, trans, parallel).tween_shader(shader, params, duration)
+	return create_context(easing, trans, parallel).tween_shader(shader, params, duration)
 
 func tween_audio_effect(bus_idx: int, effect_idx: int, params: Dictionary, duration: float,
 		easing: Tween.EaseType = Tween.EASE_IN_OUT, trans: Tween.TransitionType = Tween.TRANS_LINEAR, parallel: bool = true) -> TwContext:

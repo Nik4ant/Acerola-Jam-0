@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cl0076pctc0m3"
+path="res://.godot/imported/Vodovoz - Escape from Tomorrow.mp3-563b4f123de5758d93a00b8f99811540.mp3str"
+
+[deps]
+
+source_file="res://global/assets/music/Vodovoz - Escape from Tomorrow.mp3"
+dest_files=["res://.godot/imported/Vodovoz - Escape from Tomorrow.mp3-563b4f123de5758d93a00b8f99811540.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

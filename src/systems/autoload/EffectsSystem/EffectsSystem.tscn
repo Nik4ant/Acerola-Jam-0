@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://wn5rpt8ayttc"]
+
+[ext_resource type="Script" path="res://systems/autoload/EffectsSystem/EffectsSystem.gd" id="1_lkfue"]
+[ext_resource type="AudioStream" uid="uid://cu451r1mp61ru" path="res://systems/autoload/EffectsSystem/pre_realm_shift_sfx.ogg" id="2_jwp50"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_kbwt2"]
+playback_mode = 2
+random_pitch = 1.1
+random_volume_offset_db = 1.5
+streams_count = 1
+stream_0/stream = ExtResource("2_jwp50")
+stream_0/weight = 1.0
+
+[node name="EffectsSystem" type="Node"]
+script = ExtResource("1_lkfue")
+
+[node name="pre_shift_sfx" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = SubResource("AudioStreamRandomizer_kbwt2")
+bus = &"Sfx"

@@ -1,0 +1,34 @@
+[gd_resource type="AudioBusLayout" load_steps=3 format=3 uid="uid://bo7gsydi2pa4p"]
+
+[sub_resource type="AudioEffectNotchFilter" id="AudioEffectNotchFilter_5kbs5"]
+resource_name = "NotchFilter"
+cutoff_hz = 20500.0
+resonance = 0.4
+
+[sub_resource type="AudioEffectFilter" id="AudioEffectFilter_f3hdl"]
+resource_name = "Filter"
+cutoff_hz = 20500.0
+
+[resource]
+bus/1/name = &"Music"
+bus/1/solo = false
+bus/1/mute = false
+bus/1/bypass_fx = false
+bus/1/volume_db = -3.5405
+bus/1/send = &"Master"
+bus/1/effect/0/effect = SubResource("AudioEffectNotchFilter_5kbs5")
+bus/1/effect/0/enabled = true
+bus/1/effect/1/effect = SubResource("AudioEffectFilter_f3hdl")
+bus/1/effect/1/enabled = true
+bus/2/name = &"Sfx"
+bus/2/solo = false
+bus/2/mute = false
+bus/2/bypass_fx = false
+bus/2/volume_db = -4.003
+bus/2/send = &"Master"
+bus/3/name = &"Voicelines"
+bus/3/solo = false
+bus/3/mute = false
+bus/3/bypass_fx = false
+bus/3/volume_db = -1.51925
+bus/3/send = &"Master"

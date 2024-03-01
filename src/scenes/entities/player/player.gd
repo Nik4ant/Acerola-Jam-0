@@ -4,8 +4,7 @@ class_name Player extends CharacterBody2D
 @export_group("Movement")
 #region Movement
 @export var max_movement_speed: float = 200.0
-@export var max_velocity: float = 800.0
-@export var friction_force: float = 8.0
+@export var max_velocity: float = 700.0
 @export var friction_wieght: float = 0.5
 var current_friction: float = 0.0
 @export_subgroup("Pitch")
@@ -20,7 +19,7 @@ var current_acceleration: float = 0.0
 @export_group("Realm shifting")
 #region Realm shifting
 @export var shift_duration: float = 0.6
-@export var shift_boost: float = 620.0
+@export var shift_boost: float = 520.0
 var shift_timer: Timer
 @export var shift_reload_duration: float = 5.0
 var shift_reload_timer: Timer
@@ -56,12 +55,27 @@ func _physics_process(delta: float) -> void:
 	).normalized()
 	var dir_rotated: Vector2 = dir.rotated(rotation)
 	
+	#region Collisions
+	var collision_count: int = get_slide_collision_count()
+	if collision_count != 0: 
+		var final_normal: Vector2 = Vector2.ZERO
+		for i in range(get_slide_collision_count()):
+			var collision: KinematicCollision2D = get_slide_collision(i)
+			final_normal += collision.get_normal()
+			final_normal = final_normal.normalized()
+			current_acceleration = 0.0
+		# TODO: sfx once
+		velocity += 80.0 * final_normal
+	velocity.x = clampf(velocity.x, -max_velocity, max_velocity)
+	velocity.y = clampf(velocity.y, -max_velocity, max_velocity)
+	#endregion
+	
 	#region Rotation
 	current_pitch_input = lerpf(
 		current_pitch_input, dir.x,
 		pitch_handling * delta
 	)
-	rotation += pitch_speed * current_pitch_input * delta # * 0.0166
+	rotation += pitch_speed * current_pitch_input * 0.0166
 	
 	var _rot_cos: float = cos(rotation)
 	var _rot_sin: float = sin(rotation)
@@ -71,6 +85,7 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("player_shift_realm"):
 		if shift_reload_timer.is_stopped() and not is_charging:
 			is_charging = true
+			EffectsSystem.enter_pre_shift()
 	elif is_charging:
 		if Input.is_action_just_released("player_shift_realm"):
 			is_charging = false
@@ -93,7 +108,7 @@ func _physics_process(delta: float) -> void:
 		current_acceleration = clampf(current_acceleration, 0.0, 1.0)
 		#endregion
 		#region Friction
-		velocity = velocity.lerp(Vector2.ZERO, 1.5 * delta)
+		velocity = velocity.lerp(Vector2.ZERO, friction_wieght * delta)
 		#endregion
 	
 	if shift_timer.is_stopped():

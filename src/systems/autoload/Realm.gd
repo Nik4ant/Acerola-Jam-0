@@ -9,7 +9,6 @@ signal realm_shifted(new_state: State)
 
 
 func shift_to(new: State) -> void:
-	# TODO: effects and stuff
 	realm_shifted.emit(new)
 
 func shift_to_opposite() -> void:
@@ -20,3 +19,4 @@ func shift_to_opposite() -> void:
 			state = State.Game
 	
 	realm_shifted.emit(state)
+	EffectsSystem.shift_realm(state)
