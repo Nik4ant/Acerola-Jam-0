@@ -1,20 +1,12 @@
 shader_type canvas_item;
 
-uniform vec2 center;
+uniform vec2 center = vec2(0.5, 0.5);
 uniform float size = 0.5;
 uniform float thickness = 0.0;
 uniform float force = 0.1;
 
 float circle(vec2 position, float radius, float feather) {
 	return smoothstep(radius, radius + feather, length(position - vec2(0.5)));
-}
-
-vec4 fragment_1(sampler2D starting_texture, vec2 uv) {
-	return texture(starting_texture, uv).rgba;
-}
-
-vec4 fragment_2(sampler2D starting_texture, vec2 uv) {
-	return texture(starting_texture, uv).rrra;
 }
 
 void fragment() {
@@ -27,12 +19,11 @@ void fragment() {
 		* smoothstep(size - thickness - 0.1, size - thickness, len)
 	);
 	vec2 disp = normalize(scaled_uv - center) * force * mask;
-	COLOR = texture(TEXTURE, UV - disp);
-	
-	if (circle(scaled_uv, size, 0.1) < 0.5) {
-		COLOR = fragment_1(TEXTURE, UV);
+	if (circle(scaled_uv, size, 0.1) > 0.01) {
+		COLOR = texture(TEXTURE, UV - disp);
 	} else {
-		COLOR = fragment_2(TEXTURE, UV);
+		COLOR.a = 0.0;
 	}
-	//COLOR.a = circle(scaled_uv, size, 0.1);
+	
+	
 }

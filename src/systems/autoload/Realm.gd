@@ -18,5 +18,5 @@ func shift_to_opposite() -> void:
 		State.Dev:
 			state = State.Game
 	
-	realm_shifted.emit(state)
 	EffectsSystem.shift_realm(state)
+	realm_shifted.emit(state)

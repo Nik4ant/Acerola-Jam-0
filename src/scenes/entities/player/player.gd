@@ -125,3 +125,7 @@ func _on_shift_timer() -> void:
 func _on_shift_reload_timer() -> void:
 	pass
 #endregion
+
+func get_uv() -> Vector2:
+	var screen_coords = get_viewport_transform() * global_position
+	return screen_coords / get_viewport().get_visible_rect().size * 0.5

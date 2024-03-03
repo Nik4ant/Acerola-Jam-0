@@ -1,17 +1,19 @@
-[gd_scene load_steps=23 format=3 uid="uid://dwe6qocvfcgsy"]
+[gd_scene load_steps=19 format=3 uid="uid://dwe6qocvfcgsy"]
 
 [ext_resource type="Script" path="res://scenes/entities/custom_nodes/BorderLine2D.gd" id="1_ro0cb"]
 [ext_resource type="Script" path="res://scenes/world/_root/root.gd" id="1_uyrlx"]
 [ext_resource type="PackedScene" uid="uid://c0so4rwftmw2t" path="res://scenes/entities/player/player.tscn" id="2_6ejvq"]
-[ext_resource type="Shader" path="res://global/resources/shaders/crt.gdshader" id="3_lsusj"]
 [ext_resource type="Shader" path="res://global/resources/shaders/grid.gdshader" id="4_6cfjd"]
 [ext_resource type="Script" path="res://scenes/world/camera.gd" id="4_fy1gb"]
-[ext_resource type="Shader" path="res://global/resources/shaders/sobel.gdshader" id="5_8ccag"]
 [ext_resource type="Shader" path="res://global/resources/shaders/stripes.gdshader" id="6_g8clr"]
-[ext_resource type="Shader" path="res://global/resources/shaders/crt_game_realm.gdshader" id="6_keeaj"]
-[ext_resource type="Shader" path="res://global/resources/shaders/TEST.gdshader" id="7_ater1"]
-[ext_resource type="Shader" path="res://global/resources/shaders/glow.gdshader" id="8_v7h2f"]
+[ext_resource type="Shader" path="res://global/resources/shaders/glow_sobel_part_1.gdshader" id="7_ater1"]
+[ext_resource type="Shader" path="res://global/resources/shaders/both_crt_part_2.gdshader" id="9_hfpqs"]
 [ext_resource type="AudioStream" uid="uid://cl0076pctc0m3" path="res://global/assets/music/Vodovoz - Escape from Tomorrow.mp3" id="10_y4ubx"]
+
+[sub_resource type="Gradient" id="Gradient_qpksk"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_wrc1y"]
+gradient = SubResource("Gradient_qpksk")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xa2ol"]
 shader = ExtResource("4_6cfjd")
@@ -43,56 +45,36 @@ interpolation_color_space = 2
 offsets = PackedFloat32Array(0, 0.506667, 0.993333)
 colors = PackedColorArray(0.211765, 0.819608, 0.862745, 1, 0.356863, 0.52549, 0.898039, 1, 0.211765, 0.819608, 0.862745, 1)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_h1tvg"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3ago0"]
 shader = ExtResource("7_ater1")
 shader_parameter/center = Vector2(0.5, 0.5)
-shader_parameter/size = 0.455
-shader_parameter/thickness = 0.0
+shader_parameter/size = -0.1
+shader_parameter/thickness = 0.05
 shader_parameter/force = 0.1
-shader_parameter/dev_shift_r = 0.0
-shader_parameter/dev_shift_g = 0.002
-shader_parameter/dev_shift_b = 0.002
-shader_parameter/dev_clone_r = 0.0
-shader_parameter/dev_clone_g = 0.0
-shader_parameter/dev_clone_b = 0.0
-shader_parameter/game_scanline_count = 350.0
-shader_parameter/game_offset_r = 0.0
-shader_parameter/game_offset_b = 0.0
-shader_parameter/BLOOM_THRESHOLD = 0.7
-shader_parameter/BLOOM_INTENSITY = 3.0
-shader_parameter/BLUR_ITERATIONS = 3
-shader_parameter/BLUR_SIZE = 0.03
-shader_parameter/BLUR_SUBDIVISIONS = 32
-
-[sub_resource type="ViewportTexture" id="ViewportTexture_pnxmy"]
-viewport_path = NodePath("SubViewportContainer/SubViewport")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_cm8on"]
-shader = ExtResource("8_v7h2f")
 shader_parameter/BLOOM_THRESHOLD = 0.75
 shader_parameter/BLOOM_INTENSITY = 2.0
 shader_parameter/BLUR_ITERATIONS = 5
 shader_parameter/BLUR_SIZE = 0.005
 shader_parameter/BLUR_SUBDIVISIONS = 32
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_0mi4s"]
-shader = ExtResource("6_keeaj")
-shader_parameter/scanline_count = 350.0
-shader_parameter/offset_r = 0.0
-shader_parameter/offset_b = 0.0
+[sub_resource type="ViewportTexture" id="ViewportTexture_blqug"]
+viewport_path = NodePath("SubViewportContainer/SubViewport")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_wwli5"]
-shader = ExtResource("5_8ccag")
-shader_parameter/alpha = 1.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_qplhl"]
-shader = ExtResource("3_lsusj")
-shader_parameter/shift_r = 0.0
-shader_parameter/shift_g = 3.25988e-09
-shader_parameter/shift_b = 3.25988e-09
-shader_parameter/clone_r = 0.0
-shader_parameter/clone_g = 0.0
-shader_parameter/clone_b = 0.0
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1ik3d"]
+shader = ExtResource("9_hfpqs")
+shader_parameter/center = Vector2(0.5, 0.5)
+shader_parameter/size = -0.1
+shader_parameter/thickness = 0.0
+shader_parameter/force = 0.0
+shader_parameter/game_scanline_count = 350.0
+shader_parameter/game_offset_r = 0.0
+shader_parameter/game_offset_b = 0.0
+shader_parameter/dev_shift_r = 0.0
+shader_parameter/dev_shift_g = 3.25988e-09
+shader_parameter/dev_shift_b = 3.25988e-09
+shader_parameter/dev_clone_r = 0.0
+shader_parameter/dev_clone_g = 0.0
+shader_parameter/dev_clone_b = 0.0
 
 [node name="Root" type="Node"]
 script = ExtResource("1_uyrlx")
@@ -100,6 +82,7 @@ script = ExtResource("1_uyrlx")
 [node name="bg_music" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
 stream = ExtResource("10_y4ubx")
+volume_db = -15.509
 autoplay = true
 bus = &"Music"
 
@@ -111,7 +94,10 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+disable_3d = true
 handle_input_locally = false
+vrs_texture = SubResource("GradientTexture2D_wrc1y")
+canvas_item_default_texture_filter = 2
 size = Vector2i(640, 360)
 render_target_update_mode = 4
 
@@ -174,81 +160,20 @@ joint_mode = 2
 antialiased = true
 script = ExtResource("1_ro0cb")
 
-[node name="viewport_with_giga_shaders" type="TextureRect" parent="."]
-material = SubResource("ShaderMaterial_h1tvg")
+[node name="viewport_no_crt" type="TextureRect" parent="."]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_3ago0")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = SubResource("ViewportTexture_pnxmy")
-stretch_mode = 4
+texture = SubResource("ViewportTexture_blqug")
+stretch_mode = 6
 
-[node name="game_realm_shaders" type="Control" parent="."]
+[node name="crt_overlay" type="ColorRect" parent="."]
 unique_name_in_owner = true
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_lock_ = true
-
-[node name="shader_glow_game" type="ColorRect" parent="game_realm_shaders"]
-unique_name_in_owner = true
-material = SubResource("ShaderMaterial_cm8on")
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_use_anchors_ = true
-
-[node name="BackBufferCopy" type="BackBufferCopy" parent="game_realm_shaders"]
-scale = Vector2(1e-05, 1e-05)
-copy_mode = 2
-
-[node name="shader_crt_game" type="ColorRect" parent="game_realm_shaders"]
-unique_name_in_owner = true
-material = SubResource("ShaderMaterial_0mi4s")
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="dev_realm_shaders" type="Control" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_lock_ = true
-
-[node name="shader_sobel_dev" type="ColorRect" parent="dev_realm_shaders"]
-unique_name_in_owner = true
-material = SubResource("ShaderMaterial_wwli5")
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="BackBufferCopy" type="BackBufferCopy" parent="dev_realm_shaders"]
-scale = Vector2(1e-05, 1e-05)
-copy_mode = 2
-
-[node name="shader_crt_dev" type="ColorRect" parent="dev_realm_shaders"]
-unique_name_in_owner = true
-material = SubResource("ShaderMaterial_qplhl")
-layout_mode = 1
+material = SubResource("ShaderMaterial_1ik3d")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
